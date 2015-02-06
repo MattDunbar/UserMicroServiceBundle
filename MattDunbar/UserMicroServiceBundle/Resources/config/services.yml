@@ -1,0 +1,4 @@
+services:
+    matt_dunbar_user_micro_service.authentication_controller:
+        class: MattDunbar\UserMicroServiceBundle\Controller\AuthenticationController
+        arguments: [@fos_user.user_manager, @security.context]
