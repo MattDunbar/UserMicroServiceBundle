@@ -1,7 +1,7 @@
 <?php
 namespace MattDunbar\UserMicroServiceBundle\Tests\Utilities;
 
-class Mocker
+class Mocker extends \PHPUnit_Framework_TestCase
 {
     /**
      * Create mock user object.
