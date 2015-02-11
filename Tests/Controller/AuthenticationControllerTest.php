@@ -1,17 +1,41 @@
 <?php
 
 namespace MattDunbar\UserMicroServiceBundle\Tests\Controller;
+use MattDunbar\UserMicroServiceBundle\Controller\AuthenticationController;
+use MattDunbar\UserMicroServiceBundle\Tests\Utilities\Mocker;
 
-use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
-
-class AuthenticationControllerTest extends WebTestCase
+class AuthenticationControllerTest extends \PHPUnit_Framework_TestCase
 {
-    public function testIndex()
+    /** @var \MattDunbar\UserMicroServiceBundle\Tests\Utilities\Mocker */
+    protected $mocker;
+
+    protected function setUp()
     {
-        $client = static::createClient();
+        $this->mocker = new Mocker;
+    }
 
-        $crawler = $client->request('GET', '/hello/Fabien');
+    /**
+     * Tests check action.
+     */
+    public function testCheckAction()
+    {
+        $sampleUserId = 123;
+        $sampleUserEmail = 'test@example.com';
 
-        $this->assertTrue($crawler->filter('html:contains("Hello Fabien")')->count() > 0);
+        $userMock = $this->mocker->mockUser($sampleUserId, $sampleUserEmail);
+        $tokenMock = $this->mocker->mockToken($userMock);
+        $securityContextMock = $this->mocker->mockSecurityContext($tokenMock);
+        $userManagerMock = $this->getMock('\FOS\UserBundle\Model\UserManagerInterface');
+
+        $authenticationController = new AuthenticationController($userManagerMock, $securityContextMock);
+        $checkAction = $authenticationController->checkAction();
+
+        $jsonContent = $checkAction->getContent();
+        $content = json_decode($jsonContent);
+
+        $this->assertInstanceOf('\Symfony\Component\HttpFoundation\JsonResponse', $checkAction);
+        $this->assertEquals(200, $checkAction->getStatusCode());
+        $this->assertEquals($sampleUserId, $content->user_id);
+        $this->assertEquals($sampleUserEmail, $content->email);
     }
 }
